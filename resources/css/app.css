@@ -1,0 +1,146 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
+@import url('https://unpkg.com/leaflet@1.9.4/dist/leaflet.css');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    --bg-primary: #040510;
+    --bg-secondary: #0a0b1e;
+    --bg-card: rgba(10, 11, 30, 0.4);
+    --bg-card-solid: #0a0b1e;
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --text-tertiary: #64748b;
+    --accent-primary: #00f0ff;
+    --accent-secondary: #ff00a0;
+    --accent-tertiary: #7000ff;
+    --border-light: rgba(255, 255, 255, 0.08);
+    --border-strong: rgba(255, 255, 255, 0.15);
+    --glow-primary: rgba(0, 240, 255, 0.4);
+    --glow-secondary: rgba(255, 0, 160, 0.4);
+
+    --grad-color-1: rgba(112, 0, 255, 0.15);
+    --grad-color-2: rgba(0, 240, 255, 0.15);
+    --map-bg: #040510;
+    --popup-bg: rgba(10, 11, 30, 0.9);
+    --navbar-bg: rgba(5, 10, 21, 0.8);
+    --sidebar-bg: rgba(5, 10, 21, 0.9);
+    --overlay-bg: rgba(0, 0, 0, 0.6);
+    --hover-bg: rgba(255, 255, 255, 0.05);
+    --table-hover: rgba(255, 255, 255, 0.02);
+    
+    --font-heading: 'Outfit', sans-serif;
+    --font-body: 'Inter', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+}
+
+:root.light-mode {
+    --bg-primary: #f0f4f8;
+    --bg-secondary: #ffffff;
+    --bg-card: rgba(255, 255, 255, 0.7);
+    --bg-card-solid: #ffffff;
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-tertiary: #64748b;
+    --accent-primary: #0284c7;
+    --accent-secondary: #e11d48;
+    --accent-tertiary: #4f46e5;
+    --border-light: rgba(0, 0, 0, 0.1);
+    --border-strong: rgba(0, 0, 0, 0.2);
+    --glow-primary: rgba(2, 132, 199, 0.2);
+    --glow-secondary: rgba(225, 29, 72, 0.2);
+    
+    --grad-color-1: rgba(79, 70, 229, 0.08);
+    --grad-color-2: rgba(2, 132, 199, 0.08);
+    --map-bg: #e5e7eb;
+    --popup-bg: rgba(255, 255, 255, 0.95);
+    --navbar-bg: rgba(255, 255, 255, 0.85);
+    --sidebar-bg: rgba(255, 255, 255, 0.95);
+    --overlay-bg: rgba(255, 255, 255, 0.85);
+    --hover-bg: rgba(0, 0, 0, 0.05);
+    --table-hover: rgba(0, 0, 0, 0.02);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.text-gradient {
+    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.glass-panel {
+    background: var(--bg-card);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--border-light);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.glass-panel:hover {
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 20px var(--glow-primary);
+}
+
+.navbar {
+    background: var(--navbar-bg);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border-light);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.nav-link {
+    color: var(--text-secondary);
+    font-weight: 500;
+    transition: all 0.3s ease;
+    position: relative;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+}
+
+.nav-link:hover, .nav-link.active {
+    color: var(--text-primary);
+    background: var(--hover-bg);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--accent-primary), var(--accent-tertiary));
+    color: #fff !important;
+    padding: 0.5rem 1.5rem;
+    border-radius: 9999px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: none;
+    box-shadow: 0 0 15px var(--glow-primary);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 25px var(--glow-primary);
+}
+
+.bg-gradient-radial {
+    background: radial-gradient(circle at top right, var(--grad-color-1), transparent 40%),
+                radial-gradient(circle at bottom left, var(--grad-color-2), transparent 40%);
+}
