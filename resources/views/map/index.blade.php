@@ -380,6 +380,15 @@
             function syncData(apiData) {
                 const query = searchInput && searchInput.value ? searchInput.value.toLowerCase().trim() : '';
 
+                waypointCluster.clearLayers();
+                aidCluster.clearLayers();
+                routeLayer.clearLayers();
+                activeFlights.forEach(f => {
+                    if (map.hasLayer(f.marker)) map.removeLayer(f.marker);
+                });
+                activeFlights = [];
+                currentLayers = { waypoints: new Map(), aids: new Map(), routes: new Map(), aircraft: new Map() };
+
                 const newWpMap = new Map();
                 if (filterWaypoints && filterWaypoints.checked && apiData.waypoints) {
                     apiData.waypoints.forEach(wp => {
@@ -389,28 +398,20 @@
                 }
                 
                 for (const [id, wp] of newWpMap) {
-                    if (!currentLayers.waypoints.has(id)) {
-                        const marker = L.marker([wp.lat, wp.lng], { icon: getIcon('waypoint') });
-                        marker.bindPopup(`
-                            <div class="p-2 min-w-[200px]">
-                                <div class="text-[10px] uppercase tracking-[0.2em] text-accent-primary mb-1"><i class="fa-solid fa-location-dot mr-1"></i> WAYPOINT &bull; ${wp.type}</div>
-                                <div class="text-xl font-heading font-bold text-text-primary mb-2">${wp.name}</div>
-                                <div class="grid grid-cols-2 gap-2 text-xs border-t border-border-light pt-2 mt-2">
-                                    <div><span class="text-text-tertiary block">LAT</span><span class="font-mono text-text-primary">${wp.lat.toFixed(5)}</span></div>
-                                    <div><span class="text-text-tertiary block">LNG</span><span class="font-mono text-text-primary">${wp.lng.toFixed(5)}</span></div>
-                                </div>
+                    const marker = L.marker([wp.lat, wp.lng], { icon: getIcon('waypoint') });
+                    marker.bindPopup(`
+                        <div class="p-2 min-w-[200px]">
+                            <div class="text-[10px] uppercase tracking-[0.2em] text-accent-primary mb-1"><i class="fa-solid fa-location-dot mr-1"></i> WAYPOINT &bull; ${wp.type}</div>
+                            <div class="text-xl font-heading font-bold text-text-primary mb-2">${wp.name}</div>
+                            <div class="grid grid-cols-2 gap-2 text-xs border-t border-border-light pt-2 mt-2">
+                                <div><span class="text-text-tertiary block">LAT</span><span class="font-mono text-text-primary">${wp.lat.toFixed(5)}</span></div>
+                                <div><span class="text-text-tertiary block">LNG</span><span class="font-mono text-text-primary">${wp.lng.toFixed(5)}</span></div>
                             </div>
-                        `);
-                        marker.bindTooltip(wp.name, { permanent: true, direction: 'right', className: 'bg-transparent border-0 shadow-none text-text-primary text-[10px] font-bold drop-shadow-md', offset: [10, 0] });
-                        waypointCluster.addLayer(marker);
-                        currentLayers.waypoints.set(id, marker);
-                    }
-                }
-                for (const [id, marker] of currentLayers.waypoints) {
-                    if (!newWpMap.has(id)) {
-                        waypointCluster.removeLayer(marker);
-                        currentLayers.waypoints.delete(id);
-                    }
+                        </div>
+                    `);
+                    marker.bindTooltip(wp.name, { permanent: true, direction: 'right', className: 'bg-transparent border-0 shadow-none text-text-primary text-[10px] font-bold drop-shadow-md', offset: [10, 0] });
+                    waypointCluster.addLayer(marker);
+                    currentLayers.waypoints.set(id, marker);
                 }
 
                 const newAidMap = new Map();
@@ -422,30 +423,22 @@
                 }
                 
                 for (const [id, aid] of newAidMap) {
-                    if (!currentLayers.aids.has(id)) {
-                        const marker = L.marker([aid.lat, aid.lng], { icon: getIcon(aid.type) });
-                        const freqLine = aid.frequency ? `<div><span class="text-text-tertiary block">FREQ</span><span class="font-mono text-accent-primary">${aid.frequency}</span></div>` : '';
-                        marker.bindPopup(`
-                            <div class="p-2 min-w-[200px]">
-                                <div class="text-[10px] uppercase tracking-[0.2em] text-accent-secondary mb-1"><i class="fa-solid fa-broadcast-tower mr-1"></i> NAVAID &bull; ${aid.type.toUpperCase()}</div>
-                                <div class="text-xl font-heading font-bold text-text-primary mb-2">${aid.name}</div>
-                                <div class="grid grid-cols-2 gap-2 text-xs border-t border-border-light pt-2 mt-2">
-                                    <div><span class="text-text-tertiary block">LAT</span><span class="font-mono text-text-primary">${aid.lat.toFixed(5)}</span></div>
-                                    <div><span class="text-text-tertiary block">LNG</span><span class="font-mono text-text-primary">${aid.lng.toFixed(5)}</span></div>
-                                    ${freqLine}
-                                </div>
+                    const marker = L.marker([aid.lat, aid.lng], { icon: getIcon(aid.type) });
+                    const freqLine = aid.frequency ? `<div><span class="text-text-tertiary block">FREQ</span><span class="font-mono text-accent-primary">${aid.frequency}</span></div>` : '';
+                    marker.bindPopup(`
+                        <div class="p-2 min-w-[200px]">
+                            <div class="text-[10px] uppercase tracking-[0.2em] text-accent-secondary mb-1"><i class="fa-solid fa-broadcast-tower mr-1"></i> NAVAID &bull; ${aid.type.toUpperCase()}</div>
+                            <div class="text-xl font-heading font-bold text-text-primary mb-2">${aid.name}</div>
+                            <div class="grid grid-cols-2 gap-2 text-xs border-t border-border-light pt-2 mt-2">
+                                <div><span class="text-text-tertiary block">LAT</span><span class="font-mono text-text-primary">${aid.lat.toFixed(5)}</span></div>
+                                <div><span class="text-text-tertiary block">LNG</span><span class="font-mono text-text-primary">${aid.lng.toFixed(5)}</span></div>
+                                ${freqLine}
                             </div>
-                        `);
-                        marker.bindTooltip(aid.name, { permanent: true, direction: 'right', className: 'bg-transparent border-0 shadow-none text-text-primary text-[10px] font-bold drop-shadow-md', offset: [10, 0] });
-                        aidCluster.addLayer(marker);
-                        currentLayers.aids.set(id, marker);
-                    }
-                }
-                for (const [id, marker] of currentLayers.aids) {
-                    if (!newAidMap.has(id)) {
-                        aidCluster.removeLayer(marker);
-                        currentLayers.aids.delete(id);
-                    }
+                        </div>
+                    `);
+                    marker.bindTooltip(aid.name, { permanent: true, direction: 'right', className: 'bg-transparent border-0 shadow-none text-text-primary text-[10px] font-bold drop-shadow-md', offset: [10, 0] });
+                    aidCluster.addLayer(marker);
+                    currentLayers.aids.set(id, marker);
                 }
 
                 const newRouteMap = new Map();
@@ -457,84 +450,69 @@
                 }
                 
                 for (const [id, route] of newRouteMap) {
-                    if (!currentLayers.routes.has(id)) {
-                        const latlngs = route.points.map(p => L.latLng(p.lat, p.lng));
-                        const distance = calculateDistance(latlngs);
-                        
-                        const hitArea = L.polyline(latlngs, { color: 'transparent', weight: 20 });
-                        
-                        const polyline = L.polyline(latlngs, {
-                            color: '#00c2ff', 
-                            weight: 2,
-                            opacity: 0.9,
-                            className: 'route-line'
-                        });
+                    const latlngs = route.points.map(p => L.latLng(p.lat, p.lng));
+                    const distance = calculateDistance(latlngs);
 
-                        const vertexGroup = L.layerGroup();
-                        latlngs.forEach(ll => {
-                            L.circleMarker(ll, { radius: 4, fillColor: '#00c2ff', color: '#0b1220', weight: 2, fillOpacity: 1 }).addTo(vertexGroup);
-                        });
+                    const hitArea = L.polyline(latlngs, { color: 'transparent', weight: 20 });
 
-                        hitArea.on('mouseover', () => { polyline.setStyle({ weight: 4, color: '#2ee6a6' }); });
-                        hitArea.on('mouseout', () => { polyline.setStyle({ weight: 2, color: '#00c2ff' }); });
+                    const polyline = L.polyline(latlngs, {
+                        color: '#00c2ff', 
+                        weight: 2,
+                        opacity: 0.9,
+                        className: 'route-line'
+                    });
 
-                        hitArea.bindPopup(`
-                            <div class="p-2">
-                                <div class="text-[10px] uppercase tracking-[0.2em] text-accent-tertiary mb-1"><i class="fa-solid fa-route mr-1"></i> ATS ROUTE</div>
-                                <div class="text-lg font-heading font-bold text-text-primary">${route.name}</div>
-                                <div class="mt-2 text-xs text-text-tertiary border-t border-border-light pt-2">
-                                    Connects ${route.points.length} waypoints.<br>
-                                    Total Distance: ${distance} NM
+                    const vertexGroup = L.layerGroup();
+                    latlngs.forEach(ll => {
+                        L.circleMarker(ll, { radius: 4, fillColor: '#00c2ff', color: '#0b1220', weight: 2, fillOpacity: 1 }).addTo(vertexGroup);
+                    });
+
+                    hitArea.on('mouseover', () => { polyline.setStyle({ weight: 4, color: '#2ee6a6' }); });
+                    hitArea.on('mouseout', () => { polyline.setStyle({ weight: 2, color: '#00c2ff' }); });
+
+                    hitArea.bindPopup(`
+                        <div class="p-2">
+                            <div class="text-[10px] uppercase tracking-[0.2em] text-accent-tertiary mb-1"><i class="fa-solid fa-route mr-1"></i> ATS ROUTE</div>
+                            <div class="text-lg font-heading font-bold text-text-primary">${route.name}</div>
+                            <div class="mt-2 text-xs text-text-tertiary border-t border-border-light pt-2">
+                                Connects ${route.points.length} waypoints.<br>
+                                Total Distance: ${distance} NM
+                            </div>
+                        </div>
+                    `);
+
+                    const routeGroup = L.featureGroup([polyline, hitArea, vertexGroup]);
+                    routeLayer.addLayer(routeGroup);
+                    currentLayers.routes.set(id, routeGroup);
+
+                    // Spawn Mock Flights on this route
+                    if (!activeFlights.some(f => f.routeId === id)) {
+                        const flightId = `FL-${Math.floor(Math.random() * 9000) + 1000}`;
+                        const speed = Math.floor(Math.random() * (500 - 300 + 1)) + 300; // 300-500 knots
+                        const alt = Math.floor(Math.random() * (400 - 200 + 1)) + 200; // FL200-400
+
+                        const marker = L.marker(latlngs[0], { icon: getIcon('aircraft') });
+                        marker.bindPopup(`
+                            <div class="p-2 min-w-[200px]">
+                                <div class="text-[10px] uppercase tracking-[0.2em] text-yellow-500 mb-1"><i class="fa-solid fa-plane mr-1"></i> FLIGHT SIMULATION</div>
+                                <div class="text-xl font-heading font-bold text-text-primary mb-2">${flightId}</div>
+                                <div class="grid grid-cols-2 gap-2 text-xs border-t border-border-light pt-2 mt-2">
+                                    <div><span class="text-text-tertiary block">ROUTE</span><span class="font-mono text-text-primary">${route.name}</span></div>
+                                    <div><span class="text-text-tertiary block">SPEED</span><span class="font-mono text-text-primary">${speed} kts</span></div>
+                                    <div><span class="text-text-tertiary block">ALTITUDE</span><span class="font-mono text-text-primary">FL${alt}</span></div>
                                 </div>
                             </div>
                         `);
+                        marker.bindTooltip(flightId, { permanent: true, direction: 'right', className: 'bg-transparent border-0 shadow-none text-yellow-500 text-[10px] font-bold drop-shadow-md', offset: [10, 0] });
 
-                        const routeGroup = L.featureGroup([polyline, hitArea, vertexGroup]);
-                        routeLayer.addLayer(routeGroup);
-                        currentLayers.routes.set(id, routeGroup);
-
-                        // Spawn Mock Flights on this route
-                        if (!activeFlights.some(f => f.routeId === id)) {
-                            const flightId = `FL-${Math.floor(Math.random() * 9000) + 1000}`;
-                            const speed = Math.floor(Math.random() * (500 - 300 + 1)) + 300; // 300-500 knots
-                            const alt = Math.floor(Math.random() * (400 - 200 + 1)) + 200; // FL200-400
-                            
-                            const marker = L.marker(latlngs[0], { icon: getIcon('aircraft') });
-                            marker.bindPopup(`
-                                <div class="p-2 min-w-[200px]">
-                                    <div class="text-[10px] uppercase tracking-[0.2em] text-yellow-500 mb-1"><i class="fa-solid fa-plane mr-1"></i> FLIGHT SIMULATION</div>
-                                    <div class="text-xl font-heading font-bold text-text-primary mb-2">${flightId}</div>
-                                    <div class="grid grid-cols-2 gap-2 text-xs border-t border-border-light pt-2 mt-2">
-                                        <div><span class="text-text-tertiary block">ROUTE</span><span class="font-mono text-text-primary">${route.name}</span></div>
-                                        <div><span class="text-text-tertiary block">SPEED</span><span class="font-mono text-text-primary">${speed} kts</span></div>
-                                        <div><span class="text-text-tertiary block">ALTITUDE</span><span class="font-mono text-text-primary">FL${alt}</span></div>
-                                    </div>
-                                </div>
-                            `);
-                            marker.bindTooltip(flightId, { permanent: true, direction: 'right', className: 'bg-transparent border-0 shadow-none text-yellow-500 text-[10px] font-bold drop-shadow-md', offset: [10, 0] });
-                            
-                            activeFlights.push({
-                                id: flightId,
-                                routeId: id,
-                                points: latlngs,
-                                segment: 0,
-                                progress: 0,
-                                speed: speed * 15, // Speed up visually for demo effect
-                                marker: marker
-                            });
-                        }
-                    }
-                }
-                for (const [id, marker] of currentLayers.routes) {
-                    if (!newRouteMap.has(id)) {
-                        routeLayer.removeLayer(marker);
-                        currentLayers.routes.delete(id);
-                        activeFlights = activeFlights.filter(f => {
-                            if (f.routeId === id) {
-                                if (map.hasLayer(f.marker)) map.removeLayer(f.marker);
-                                return false;
-                            }
-                            return true;
+                        activeFlights.push({
+                            id: flightId,
+                            routeId: id,
+                            points: latlngs,
+                            segment: 0,
+                            progress: 0,
+                            speed: speed * 15, // Speed up visually for demo effect
+                            marker: marker
                         });
                     }
                 }
