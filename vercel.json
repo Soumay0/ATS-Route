@@ -1,5 +1,19 @@
 {
-    "buildCommand": "npm run build",
-    "outputDirectory": "public/build",
-    "installCommand": "npm install"
+    "buildCommand": "composer install --no-dev --prefer-dist --optimize-autoloader && npm run build",
+    "outputDirectory": "public",
+    "installCommand": "npm install",
+    "functions": {
+        "api/index.php": {
+            "runtime": "vercel-php@0.7.6"
+        }
+    },
+    "routes": [
+        {
+            "handle": "filesystem"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/api/index.php"
+        }
+    ]
 }
