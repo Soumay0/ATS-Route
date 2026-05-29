@@ -1,65 +1,53 @@
 <?php
 
+use App\Http\Controllers\AtsRouteController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\InteractiveMapController;
+use App\Http\Controllers\LandingController;
+use App\Http\Controllers\NavigationalAidController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\LiveFlightController;
-use App\Http\Controllers\WeatherController;
-use App\Http\Controllers\SlotController;
-use Illuminate\Foundation\Application;
+use App\Http\Controllers\ReportController;
+use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\WaypointController;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 
-Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
-    ]);
-})->name('home');
+Route::get('/', LandingController::class)->name('home');
 
-Route::get('/network', function () {
-    return Inertia::render('Network', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-    ]);
-})->name('network');
-
-Route::get('/slots', function () {
-    return Inertia::render('Slots', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-    ]);
-})->name('slots');
-
-Route::get('/live-flights', function () {
-    return Inertia::render('LiveFlights', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-    ]);
-})->name('live-flights');
-
-Route::get('/weather', function () {
-    return Inertia::render('Weather', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-    ]);
-})->name('weather');
-
-// API Data Routes
-Route::get('/api/flights', [LiveFlightController::class, 'index'])->name('api.flights');
-Route::get('/api/weather', [WeatherController::class, 'index'])->name('api.weather');
-Route::get('/api/slots', [SlotController::class, 'index'])->name('api.slots');
-Route::post('/api/slots/generate', [SlotController::class, 'generateLiveSlots'])->name('api.slots.generate');
-Route::patch('/api/slots/{id}', [SlotController::class, 'updateStatus'])->name('api.slots.update');
-
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::redirect('/network', '/interactive-map');
+Route::redirect('/slots', '/ats-routes');
+Route::redirect('/live-flights', '/dashboard');
+Route::redirect('/weather', '/reports');
 
 Route::middleware('auth')->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::resource('waypoints', WaypointController::class)->except(['show']);
+    Route::resource('navigational-aids', NavigationalAidController::class)->except(['show']);
+    Route::resource('ats-routes', AtsRouteController::class)->except(['show']);
+    Route::get('/interactive-map', [InteractiveMapController::class, 'index'])->name('interactive-map');
+    Route::get('/api/map-data', [InteractiveMapController::class, 'data'])->name('api.map-data');
+    Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
+    Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
+// API data routes kept for compatibility with the existing project.
+Route::get('/api/flights', function () {
+    return response()->json([]);
+})->name('api.flights');
+Route::get('/api/weather', function () {
+    return response()->json([]);
+})->name('api.weather');
+Route::get('/api/slots', function () {
+    return response()->json([]);
+})->name('api.slots');
+Route::post('/api/slots/generate', function () {
+    return response()->json(['message' => 'Slot generation is available in the dashboard module.']);
+})->name('api.slots.generate');
+Route::patch('/api/slots/{id}', function () {
+    return response()->json(['message' => 'Slot status update is not used in the Blade version.']);
+})->name('api.slots.update');
 
 require __DIR__.'/auth.php';
