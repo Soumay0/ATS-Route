@@ -14,11 +14,11 @@
             </div>
 
             <div class="space-y-5">
-                <h1 class="font-heading text-5xl font-bold uppercase tracking-[0.18em] text-white md:text-7xl">
-                    Presenting Waypoints, Navigational Aids and Creating ATS Route Network
+                <h1 class="max-w-3xl font-heading text-4xl font-semibold uppercase tracking-[0.1em] text-white md:text-6xl lg:text-7xl">
+                    Waypoints, Aids & ATS Routes
                 </h1>
-                <p class="max-w-2xl text-lg leading-8 text-text-secondary md:text-xl">
-                    A professional aviation control dashboard for designing, visualizing, and managing route networks, waypoint clusters, and navigational aids on the Google Earth platform.
+                <p class="max-w-xl text-base leading-7 text-text-secondary md:text-lg">
+                    Aviation route planning and navigation management, presented in a focused control-center interface.
                 </p>
             </div>
 

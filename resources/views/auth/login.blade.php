@@ -24,11 +24,11 @@
             @csrf
             <label class="block space-y-2">
                 <span class="text-sm uppercase tracking-[0.3em] text-text-tertiary">Email</span>
-                <input type="email" name="email" value="{{ old('email') }}" class="w-full rounded-2xl border border-border-light bg-bg-primary px-4 py-3 text-text-primary focus:border-accent-primary focus:outline-none" required autofocus>
+                <input type="email" name="email" value="{{ old('email') }}" class="auth-input" placeholder="controller@aeroroute.test" required autofocus>
             </label>
             <label class="block space-y-2">
                 <span class="text-sm uppercase tracking-[0.3em] text-text-tertiary">Password</span>
-                <input type="password" name="password" class="w-full rounded-2xl border border-border-light bg-bg-primary px-4 py-3 text-text-primary focus:border-accent-primary focus:outline-none" required>
+                <input type="password" name="password" class="auth-input" placeholder="••••••••" required>
             </label>
 
             <label class="flex items-center gap-3 text-sm text-text-secondary">

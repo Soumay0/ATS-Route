@@ -20,7 +20,7 @@
             @csrf
             <label class="block space-y-2">
                 <span class="text-sm uppercase tracking-[0.3em] text-text-tertiary">Email</span>
-                <input type="email" name="email" value="{{ old('email') }}" class="w-full rounded-2xl border border-border-light bg-white/5 px-4 py-3 text-white focus:border-accent-primary focus:outline-none" required autofocus>
+                <input type="email" name="email" value="{{ old('email') }}" class="auth-input" placeholder="name@company.com" required autofocus>
             </label>
             <button type="submit" class="btn-primary w-full justify-center">Send Reset Link</button>
         </form>

@@ -17,15 +17,15 @@
 
             <label class="block space-y-2">
                 <span class="text-sm uppercase tracking-[0.3em] text-text-tertiary">Email</span>
-                <input type="email" name="email" value="{{ old('email', $email) }}" class="w-full rounded-2xl border border-border-light bg-white/5 px-4 py-3 text-white focus:border-accent-primary focus:outline-none" required>
+                <input type="email" name="email" value="{{ old('email', $email) }}" class="auth-input" placeholder="name@company.com" required>
             </label>
             <label class="block space-y-2">
                 <span class="text-sm uppercase tracking-[0.3em] text-text-tertiary">Password</span>
-                <input type="password" name="password" class="w-full rounded-2xl border border-border-light bg-white/5 px-4 py-3 text-white focus:border-accent-primary focus:outline-none" required>
+                <input type="password" name="password" class="auth-input" placeholder="New password" required>
             </label>
             <label class="block space-y-2">
                 <span class="text-sm uppercase tracking-[0.3em] text-text-tertiary">Confirm Password</span>
-                <input type="password" name="password_confirmation" class="w-full rounded-2xl border border-border-light bg-white/5 px-4 py-3 text-white focus:border-accent-primary focus:outline-none" required>
+                <input type="password" name="password_confirmation" class="auth-input" placeholder="Confirm password" required>
             </label>
 
             <button type="submit" class="btn-primary w-full justify-center">Reset Password</button>

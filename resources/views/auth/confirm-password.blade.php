@@ -16,7 +16,7 @@
             @csrf
             <label class="block space-y-2">
                 <span class="text-sm uppercase tracking-[0.3em] text-text-tertiary">Password</span>
-                <input type="password" name="password" class="w-full rounded-2xl border border-border-light bg-white/5 px-4 py-3 text-white focus:border-accent-primary focus:outline-none" required autofocus>
+                <input type="password" name="password" class="auth-input" placeholder="Password" required autofocus>
             </label>
             <button type="submit" class="btn-primary w-full justify-center">Confirm</button>
         </form>
