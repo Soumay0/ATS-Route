@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AtsRoute;
+use App\Models\RouteWaypoint;
 use App\Models\Waypoint;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -101,12 +102,14 @@ class AtsRouteController extends Controller
 
     private function syncRouteWaypoints(AtsRoute $route, array $waypointIds): void
     {
-        $syncData = [];
+        RouteWaypoint::where('ats_route_id', $route->id)->delete();
 
         foreach (array_values($waypointIds) as $index => $waypointId) {
-            $syncData[$waypointId] = ['waypoint_order' => $index + 1];
+            RouteWaypoint::create([
+                'ats_route_id' => $route->id,
+                'waypoint_id' => $waypointId,
+                'waypoint_order' => $index + 1,
+            ]);
         }
-
-        $route->waypoints()->sync($syncData);
     }
 }

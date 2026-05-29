@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\AtsRoute;
 use App\Models\NavigationalAid;
+use App\Models\RouteWaypoint;
 use App\Models\User;
 use App\Models\Waypoint;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -62,14 +63,17 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        $route->waypoints()->sync([
-            $waypoints[0]->id => ['waypoint_order' => 1],
-            $waypoints[1]->id => ['waypoint_order' => 2],
-            $waypoints[2]->id => ['waypoint_order' => 3],
-            $waypoints[3]->id => ['waypoint_order' => 4],
-        ]);
+        RouteWaypoint::where('ats_route_id', $route->id)->delete();
 
-        AtsRoute::updateOrCreate(
+        foreach ($waypoints->values() as $index => $waypoint) {
+            RouteWaypoint::create([
+                'ats_route_id' => $route->id,
+                'waypoint_id' => $waypoint->id,
+                'waypoint_order' => $index + 1,
+            ]);
+        }
+
+        $westLink = AtsRoute::updateOrCreate(
             ['route_name' => 'MUM-WEST LINK'],
             [
                 'user_id' => $controller->id,
@@ -79,5 +83,15 @@ class DatabaseSeeder extends Seeder
                 'status' => 'planned',
             ]
         );
+
+        RouteWaypoint::where('ats_route_id', $westLink->id)->delete();
+
+        foreach ($waypoints->values()->reverse()->values() as $index => $waypoint) {
+            RouteWaypoint::create([
+                'ats_route_id' => $westLink->id,
+                'waypoint_id' => $waypoint->id,
+                'waypoint_order' => $index + 1,
+            ]);
+        }
     }
 }

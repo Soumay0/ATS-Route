@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\AtsRoute;
 use App\Models\NavigationalAid;
+use App\Models\RouteWaypoint;
 use App\Models\Waypoint;
 
 class InteractiveMapController extends Controller
@@ -15,9 +16,9 @@ class InteractiveMapController extends Controller
 
     public function data()
     {
-        $waypoints = Waypoint::select('_id', 'name', 'latitude', 'longitude', 'type')->get()->map(function ($waypoint) {
+        $waypoints = Waypoint::select('id', 'name', 'latitude', 'longitude', 'type')->get()->map(function ($waypoint) {
             return [
-                'id' => (string) ($waypoint->_id ?? $waypoint->id),
+                'id' => (string) $waypoint->id,
                 'name' => $waypoint->name,
                 'lat' => (float) $waypoint->latitude,
                 'lng' => (float) $waypoint->longitude,
@@ -25,9 +26,9 @@ class InteractiveMapController extends Controller
             ];
         });
 
-        $aids = NavigationalAid::select('_id', 'aid_name', 'latitude', 'longitude', 'aid_type', 'frequency')->get()->map(function ($aid) {
+        $aids = NavigationalAid::select('id', 'aid_name', 'latitude', 'longitude', 'aid_type', 'frequency')->get()->map(function ($aid) {
             return [
-                'id' => (string) ($aid->_id ?? $aid->id),
+                'id' => (string) $aid->id,
                 'name' => $aid->aid_name,
                 'lat' => (float) $aid->latitude,
                 'lng' => (float) $aid->longitude,
@@ -36,18 +37,29 @@ class InteractiveMapController extends Controller
             ];
         });
 
-        $routes = AtsRoute::select('_id', 'route_name')->with(['waypoints' => function($q) {
-            $q->select('_id', 'latitude', 'longitude');
-        }])->get()->map(function ($route) {
+        $routes = AtsRoute::select('id', 'route_name')->get()->map(function ($route) {
+            $routeWaypointIds = RouteWaypoint::where('ats_route_id', $route->id)
+                ->orderBy('waypoint_order')
+                ->pluck('waypoint_id')
+                ->values();
+
+            $waypointsById = Waypoint::whereIn('id', $routeWaypointIds)->get()->keyBy('id');
+
             return [
-                'id' => (string) ($route->_id ?? $route->id),
+                'id' => (string) $route->id,
                 'name' => $route->route_name,
-                'points' => $route->waypoints->map(function ($wp) {
+                'points' => $routeWaypointIds->map(function ($waypointId) use ($waypointsById) {
+                    $wp = $waypointsById->get($waypointId);
+
+                    if (! $wp) {
+                        return null;
+                    }
+
                     return [
                         'lat' => (float) $wp->latitude,
                         'lng' => (float) $wp->longitude,
                     ];
-                })->values()->toArray(),
+                })->filter()->values()->toArray(),
             ];
         });
 
